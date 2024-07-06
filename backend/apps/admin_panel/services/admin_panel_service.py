@@ -5,7 +5,7 @@ AdminPanel Service Class
 import datetime
 
 from apps.admin_panel.interfaces import IAdminPanelService
-from apps.core.exceptions.exception_classes import ModelNotFoundError
+from apps.core.exceptions.exceptions_classes import ModelNotFoundException
 from extensions import db
 from flask_wtf import FlaskForm
 from wtforms import (
@@ -155,7 +155,7 @@ class AdminPanelService(IAdminPanelService):
             records = model["model"].query.all()
             columns = model["columns"] + model["properties"]
             return records, columns
-        raise ModelNotFoundError(
+        raise ModelNotFoundException(
             f"{model_name} not found in registered models for Admin Panle"
         )
 
@@ -175,7 +175,7 @@ class AdminPanelService(IAdminPanelService):
                 db.session.commit()
                 return True, model_name, form
             return False, model_name, form
-        raise ModelNotFoundError(
+        raise ModelNotFoundException(
             f"{model_name} not found in registered models for Admin Panle"
         )
 
@@ -190,7 +190,7 @@ class AdminPanelService(IAdminPanelService):
                 db.session.commit()
                 return True, model_name, form
             return False, model_name, form
-        raise ModelNotFoundError(
+        raise ModelNotFoundException(
             f"{model_name} not found in registered models for Admin Panle"
         )
 
@@ -204,6 +204,6 @@ class AdminPanelService(IAdminPanelService):
                 db.session.commit()
                 return True, model_name, instance
             return False, model_name, instance
-        raise ModelNotFoundError(
+        raise ModelNotFoundException(
             f"{model_name} not found in registered models for Admin Panle"
         )
