@@ -1,0 +1,1 @@
+from .healthcheck_service_injector import serv_healtcheck

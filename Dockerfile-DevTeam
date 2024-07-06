@@ -1,0 +1,94 @@
+FROM python:3.11
+
+RUN apt-get update && apt-get install -y \
+    make build-essential \
+    libssl-dev \
+    zlib1g-dev \
+    libbz2-dev \
+    libreadline-dev \
+    libsqlite3-dev \
+    wget \
+    curl \
+    llvm \
+    libncurses5-dev \
+    libncursesw5-dev \
+    xz-utils \
+    tk-dev \
+    libffi-dev \
+    liblzma-dev \
+    git \
+    vim \
+    unixodbc-dev \
+    unixodbc \
+    libpq-dev \
+    nano \
+    && rm -rf /var/lib/apt/lists/*
+
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
+
+# Set up Docker Compose environment variables for mounting
+RUN curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add -
+RUN curl https://packages.microsoft.com/config/ubuntu/20.04/prod.list > /etc/apt/sources.list.d/mssql-release.list
+
+# Install the Microsoft ODBC driver and SQL Server command-line tools
+RUN apt-get update && \
+    ACCEPT_EULA=Y apt-get install -y \
+    msodbcsql17 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Download the mssql-tools package
+RUN wget -qO /tmp/mssql-tools.deb https://packages.microsoft.com/ubuntu/20.04/prod/pool/main/m/mssql-tools/mssql-tools_17.10.1.1-1_amd64.deb
+
+# Install the mssql-tools package and accept the EULA
+RUN echo 'mssql-tools mssql-tools/accept_eula boolean true' | debconf-set-selections
+RUN dpkg -i /tmp/mssql-tools.deb
+
+# Clean up
+RUN rm /tmp/mssql-tools.deb
+
+# Add mssql-tools to the PATH environment variable
+ENV PATH="${PATH}:/opt/mssql-tools/bin"
+
+# Set user and group IDs to match host machine
+ARG USER_ID
+ARG GROUP_ID
+ARG USER_NAME
+ARG USER_DISP_NAME
+ARG USER_EMAIL
+
+ENV UNAME=$USER_NAME
+ENV UDNAME=$USER_DISP_NAME
+ENV UEMAIL=$USER_EMAIL
+
+ENV DATABASE_URL=mssql+pyodbc://$MSSQL_USERNAME:$MSSQL_PASSWORD@$MSSQL_SERVER:$MSSQL_PORT/$MSSQL_DATABASE?driver=ODBC+Driver+17+for+SQL+Server
+WORKDIR /app
+
+# Create a non-root user with the same UID and GID as the host user
+RUN addgroup --gid $GROUP_ID appuser && \
+    adduser --disabled-password --gecos '' --uid $USER_ID --gid $GROUP_ID appuser
+
+RUN apt-get update && apt-get install -y sudo && \
+    echo 'appuser ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
+
+# Change ownership of the working directory to the non-root user
+ADD . ./
+RUN chown -R appuser:appuser /app
+
+RUN python -m pip install --upgrade pip
+RUN pip install -r backend/requirements.txt
+
+USER appuser
+
+RUN curl https://raw.githubusercontent.com/creationix/nvm/master/install.sh | bash
+RUN /bin/bash -c "source ~/.bashrc"
+
+# Set up Git configuration
+RUN git config --global user.name $UDNAME
+RUN git config --global user.email $UEMAIL
+
+EXPOSE 8091
+EXPOSE 8092
+EXPOSE 8093
+
+CMD ["bash"]

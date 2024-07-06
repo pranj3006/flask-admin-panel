@@ -1,0 +1,42 @@
+{
+"name":"Admin Panel App Container",
+"dockerComposeFile":[
+    "../docker-compose-devenv.yml",
+    "docker-compose.yml"
+],
+"service": "dev_admin_panel_app",
+"workspaceFolder":"/app/",
+"extensions": [
+    "ms-python.python",
+    "ms-python.vscode-pylance",
+    "ms-python.pyright",
+    "ms-python.vscode-pylint",
+    "ms-python.black-formatter",
+    "ms-python.isort",
+    "ms-python.sort",
+    "flake8.flake8",
+    "dbaeumer.vscode-eslint",
+    "aaron-bond.better-comments",
+    "esbenp.prettier-vscode",
+    "joaompinto.vscode-graphviz",
+    "tushortz.python-extended-snippets",
+    "davidanson.vscode-markdownlint",
+    "VisualStudioExptTeam.vscodeintellicode",
+    "ms-azuretools.vsccode-docker",
+    "formulahendry.docker-explorer",
+    "eamodio.gitlens",
+    "ms-python.pylint",
+    "rangav.vscode-thunder-client",
+    "bardlc.vscode-tailwindcss",
+    "ms-python.flake8"
+],
+"forwardPorts": [
+    1433,
+    8089,    
+    8091,
+    8092,
+    8093
+],
+"postCreateCommand": "echo 'Setup Completed'"
+
+}

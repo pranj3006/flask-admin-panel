@@ -1,0 +1,31 @@
+[MASTER]
+load-plugin=pylint_flask
+enable = unused-import,unsed-variable,unsed-argument,unsed-private-memeber, missing-docstring,invalid-name
+extension-pkg-whitelist = flask
+
+[MESSAGE CONTROL]
+enable = 
+    use-symbolic-message-instead,
+    useless-suppression,
+
+[BASIC]
+indent-string = '    '
+function-naming-style=snake_case
+variable-naming-style=snake_case
+const-naming-style=UPPER_CASE
+class-naming-style=PascalCase
+module-naming-style=snake_case
+
+[FORMAT]
+max-line-lienght = 87
+max-module-lines=2000
+
+[TYPECHECK]
+generate-members = __dict__,__annotations__
+ignore-mixin-members=yes
+
+[REPORTS]
+msg-template = "{path}:{line}:{column}: {msg_id}: {msg}"
+
+[DESIGN]
+max-parents=13
