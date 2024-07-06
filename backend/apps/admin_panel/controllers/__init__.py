@@ -1,0 +1,1 @@
+from .admin_panel_controller import api as admin_panel_ns

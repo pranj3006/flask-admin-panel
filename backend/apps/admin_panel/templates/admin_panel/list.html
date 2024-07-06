@@ -1,0 +1,34 @@
+<div class="container">
+    <h1>{{ model_name }} Records</h1>
+    <div id="loader" class="loader" style="display: none;"></div>
+
+    <div class="container">
+        <a href="#" class="btn btn-success" onclick="addRecord('{{ model_name }}')">Add {{ model_name }}</a>
+    </div>
+    
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                {% for column in columns %}
+                    <th>{{ column }}</th>
+                {% endfor %}
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for record in records %}
+            <tr>
+                {% for column in columns %}
+                    <td>{{ record[column] }}</td>
+                {% endfor %}
+                <td>
+                    <a href="#" class="btn btn-primary btn-sm" onclick="editRecord('{{ model_name }}', {{ record.id }})">Edit</a>
+                    <form class="delete-form" style="display: inline;">
+                        <button type="button" class="btn btn-sm btn-danger" onclick="deleteRecord(this, '{{ model_name }}', {{ record.id }})">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>    
+</div>

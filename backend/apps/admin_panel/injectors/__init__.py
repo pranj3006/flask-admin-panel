@@ -1,0 +1,1 @@
+from .admin_panel_injector import serv_admin_panel
