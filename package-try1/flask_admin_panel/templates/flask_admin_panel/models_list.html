@@ -1,0 +1,8 @@
+<h2>Models</h2>
+<ul class="nav flex-column">
+    {% for model_name in models %}
+    <li class="nav-item">
+        <a class="nav-link" href="#" onclick="loadModelRecords('{{ model_name }}')">{{ model_name }}</a>
+    </li>        
+    {% endfor %}
+</ul>

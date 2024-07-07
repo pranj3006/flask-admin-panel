@@ -1,0 +1,1 @@
+from .admin_panel_blueprint import admin_panel_bp
