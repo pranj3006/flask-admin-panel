@@ -5,21 +5,36 @@ setup(
     version='0.1',
     packages=find_packages(),
     include_package_data=True,
+    # install_requires=[
+    #     'Flask==3.0.2',
+    #     'flask-restx==1.3.0',
+    #     'Flask-SQLAlchemy==3.1.1',
+    #     'Flask-JWT-Extended==4.6.0',
+    #     'Flask-Injector==0.15.0',
+    #     'flask-marshmallow==1.2.0',
+    #     'Flask-Migrate==4.0.5',
+    #     'pytest==8.1.1',
+    #     'pytest-cov==5.0.0',
+    #     'Flask-WTF==1.2.1',
+    #     'WTForms==3.1.2',
+    #     'SQLAlchemy==2.0.27',
+    #     'WTForms-Alchemy==0.18.0',
+    #     'WTForms-Components==0.10.5'
+    #     # Add other dependencies here
+    # ],
     install_requires=[
-        'Flask==3.0.2',
-        'flask-restx==1.3.0',
-        'Flask-SQLAlchemy==3.1.1',
-        'Flask-JWT-Extended==4.6.0',
-        'Flask-Injector==0.15.0',
-        'flask-marshmallow==1.2.0',
-        'Flask-Migrate==4.0.5',
-        'pytest==8.1.1',
-        'pytest-cov==5.0.0',
-        'Flask-WTF==1.2.1',
-        'WTForms==3.1.2',
-        'SQLAlchemy==2.0.27',
-        'WTForms-Alchemy==0.18.0',
-        'WTForms-Components==0.10.5'
+        'Flask',
+        'flask-restx',
+        'Flask-SQLAlchemy',
+        'Flask-JWT-Extended',
+        'Flask-Injector',
+        'flask-marshmallow',
+        'Flask-Migrate',
+        'Flask-WTF',
+        'WTForms',
+        'SQLAlchemy',
+        'WTForms-Alchemy',
+        'WTForms-Components'
         # Add other dependencies here
     ],
     package_data={
@@ -36,5 +51,5 @@ setup(
         'License :: OSI Approved :: MIT License',
         'Operating System :: OS Independent',
     ],
-    python_requires='>=3.11',
+    python_requires='>=3.8',
 )
