@@ -1,0 +1,26 @@
+<div class="container">
+    <div id="loader" class="loader" style="display: none;"></div>
+    {% if record_id %}
+        <h1 class="mt-5">{{ model_name }} Edit Form</h1>        
+    {% else %}
+        <h1 class="mt-5">{{ model_name }} Add Form</h1>        
+    {% endif %}
+    
+    <form id="modelForm">
+        <fieldset class="border p-4">
+            <legend class="w-auto">{{ model_name }}</legend>                
+            <div class="form-group">
+                {% for field in form %}
+                <div class="row mb-3">
+                    <label for="{{ field.id }}" class="col-sm-2 col-form-label">{{ field.label }}</label>
+                    <div class="col-sm-10">
+                        {{ field(class="form-control") }}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </fieldset>
+        <button type="button" class="btn btn-primary mt-3" onclick="save('{{ model_name }}', {{ record_id }})">Save</button>
+        <button type="button" class="btn btn-secondary mt-3" onclick="goBack('{{ model_name }}')">Back</button>
+    </form>
+</div>
