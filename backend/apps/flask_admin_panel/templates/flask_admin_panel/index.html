@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>{{app_title}}</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>    
+    <style>
+        .container-fluid {
+            display: flex;
+            height: 100vh;
+        }
+        .sidebar {
+            flex: 0 0 200px;
+            background-color: #f8f9fa;
+            padding-top: 20px;
+        }
+        .content {
+            flex: 1;
+            padding: 20px;
+        }
+        .loader {
+            position: fixed;
+            left: 50%;
+            top: 50%;
+            z-index: 9999;
+            width: 50px;
+            height: 50px;
+            margin: -25px 0 0 -25px;
+            border: 8px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 8px solid #3498db;
+            width: 60px;
+            height: 60px;
+            animation: spin 2s linear infinite;
+        }
+    
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .sidebar {
+            flex: 0 0 200px;
+            background-color: #f8f9fa;
+            padding-top: 20px;
+            position: relative; /* Ensure relative positioning for absolute children */
+        }
+
+        .user-profile {
+            position: absolute;
+            top: 10px; /* Adjust top position as needed */
+            right: 10px; /* Adjust right position as needed */
+        }
+
+        .user-profile img {
+            width: 40px; /* Adjust icon size as needed */
+            height: 40px;
+            border-radius: 50%;
+        }
+
+        .user-profile a {
+            margin-left: 10px; /* Adjust spacing between icon and text */
+            color: #000; /* Adjust link color */
+            text-decoration: none; /* Remove underline */
+        }
+    </style>
+    
+</head>
+<body>
+
+<div class="user-profile text-right">
+    <a href="#" id="logout-link">Logout</a>
+</div>
+
+<div class="container-fluid">
+    <nav id="models-list" class="sidebar">
+        <!-- Content will be loaded here -->    
+    </nav>
+    <div class="content">
+        <div id="loader" class="loader" style="display: none;"></div>
+        <div id="main-content">
+            <!-- Content will be loaded here -->
+        </div>
+    </div>
+</div>
+<script>   
+    var PREFIX="{{ api_url_prefix }}"
+    function getAccessToken() {
+        return sessionStorage.getItem('app_admin_access_jwtToken',null);
+    }
+    function setAccessToken(access_token) {
+        sessionStorage.setItem('app_admin_access_jwtToken',access_token);
+    }
+    function getRefreshToken() {
+        return sessionStorage.getItem('app_admin_refresh_jwtToken',null);
+    }
+    function setRefreshToken(refresh_token) {
+        sessionStorage.setItem('app_admin_refresh_jwtToken',refresh_token);
+    }
+    function checkforlogin()
+    {        
+        if (!getAccessToken()){        
+            window.location.href = PREFIX+'/flask_admin_panel/page/login';             
+            return;
+        }
+    }
+    function refreshAccessToken() {
+        return $.ajax({
+            type: 'POST',
+            url: PREFIX+'/flask_admin_panel/refresh_token/',
+            headers: {
+                'Authorization': 'Bearer ' + getRefreshToken()
+            },
+            success: function(response) {
+                setAccessToken(response.access_token);
+            },
+            error: function(error) {
+                window.location.href = PREFIX+'/flask_admin_panel/page/login';  // Redirect to login page if token refresh fails
+            }
+        });
+    }
+
+    function apiRequest(url, method, data) {
+
+        return $.ajax({
+            type: method,
+            url: url,
+            data: data,
+            headers: {
+                'Authorization': 'Bearer ' + getAccessToken()
+            },        
+            success: function(response) {
+                return response;                
+            },
+            error: function(error) {
+                if (error.status === 401) {
+                    // Unauthorized, try to refresh token
+                    refreshAccessToken().done(function() {
+                        apiRequest(url, method, data);  // Retry original request with new token
+                    });
+                } else {
+                    alert('Error: ' + error.responseJSON.message);
+                }
+            }
+        });
+    }
+    function loadModelRecords(modelName) {
+        listRecords(modelName);
+    }
+
+    function editRecord(modelName, recordId) {
+        method='GET'
+        url= PREFIX+'/flask_admin_panel/' + modelName + '/edit_record/' + recordId
+        $('#loader').show();
+        apiRequest(url, method)
+        .done(function(response) {
+            $('#main-content').html(response);
+            $('#loader').hide();
+        })
+        .fail(function(error) {
+            alert('An error occurred while loading the data.');
+            $('#loader').hide();
+        });
+        
+    }
+
+    function deleteRecord(button, modelName, recordId) {
+        if (!confirm('Are you sure you want to delete this record?')) {
+            return;
+        }
+
+        const form = $(button).closest('form');
+        method='POST'
+        url= PREFIX+'/flask_admin_panel/' + modelName + '/delete_record/' + recordId
+        
+        $('#loader').show();
+        apiRequest(url, method)
+        .done(function(response) {
+            listRecords(modelName);
+        })
+        .fail(function(error) {
+            alert('An error occurred while loading the data.');
+            $('#loader').hide();
+        });
+    }
+
+    function addRecord(modelName) {
+        method='GET'
+        url= PREFIX+'/flask_admin_panel/add_record/' + modelName + '/'
+        $('#loader').show();
+        apiRequest(url, method)
+        .done(function(response) {
+            $('#main-content').html(response);
+            $('#loader').hide();
+        })
+        .fail(function(error) {
+            alert('An error occurred while loading the data.');
+            $('#loader').hide();
+        });
+    }
+
+    function save(modelName,record_id) 
+    {
+        var formData = $('#modelForm').serialize();
+            
+        if (!record_id){
+            $('#loader').show();
+            url=PREFIX+'/flask_admin_panel/add_record/' + modelName + '/'
+            method="POST"
+
+            apiRequest(url, method,formData)
+            .done(function(response) {
+                listRecords(modelName);
+            })
+            .fail(function(error) {
+                alert('An error occurred while loading the data.');
+                $('#loader').hide();
+            });                
+            }
+            else
+            {
+                $('#loader').show();
+                url=PREFIX+'/flask_admin_panel/' + modelName + '/edit_record/' + record_id
+                method="POST"
+
+                apiRequest(url, method,formData)
+                .done(function(response) {
+                    listRecords(modelName);
+                })
+                .fail(function(error) {
+                    alert('An error occurred while loading the data.');
+                    $('#loader').hide();
+                }); 
+            }            
+    }    
+    function goBack(modelName) {
+        listRecords(modelName);
+    
+    }
+    function listRecords(modelName){
+        method='GET'
+        url= PREFIX+'/flask_admin_panel/list_records/' + modelName + '/'
+        $('#loader').show();
+        apiRequest(url, method)
+        .done(function(response) {
+            $('#main-content').html(response);
+            $('#loader').hide();
+        })
+        .fail(function(error) {
+            alert('An error occurred while loading the data.');
+            $('#loader').hide();
+        });
+    }
+    function pageRecord(modelName, pageNum,perPageRcords) {
+        
+        method='GET'
+        url= PREFIX+'/flask_admin_panel/list_records/' + modelName + '/?page='+pageNum+'&per_page='+perPageRcords
+        $('#loader').show();
+        apiRequest(url, method)
+        .done(function(response) {
+            $('#main-content').html(response);
+            $('#loader').hide();
+        })
+        .fail(function(error) {
+            alert('An error occurred while loading the data.');
+            $('#loader').hide();
+        });
+    }
+    $('#logout-link').click(function(e) 
+     {
+            e.preventDefault();
+            // Clear local storage or perform logout actions
+            sessionStorage.clear(); // Example: Clearing local storage
+            checkforlogin();
+            // Redirect to logout page or perform other logout actions
+            // window.location.href = "/logout"; // Example: Redirecting to logout page
+    });
+    $(document).ready(function() {        
+        checkforlogin()
+        method='GET'
+        url= PREFIX+'/flask_admin_panel/list_models/'
+        apiRequest(url, method)
+        .done(function(response) {
+            $("#models-list").html(response);
+            $('#loader').hide();
+        })
+        .fail(function(error) {
+            alert('An error occurred while loading the data.');
+            $('#loader').hide();
+        });
+     });
+    
+     
+</script>
+</body>
+</html>

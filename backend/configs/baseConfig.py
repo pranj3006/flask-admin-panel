@@ -13,8 +13,9 @@ class BaseConfig:
     password = os.getenv("MSSQL_PASSWORD","")
     database = os.getenv("MSSQL_DATABASE","")
 
-    SQLALCHEMY_DATABASE_URI = f"mssql+pyodbc://{username}:{quote(password)}@{host}/{database}?driver=ODBC+Driver+17+for+SQL+Server"
+    # SQLALCHEMY_DATABASE_URI = f"mssql+pyodbc://{username}:{quote(password)}@{host}/{database}?driver=ODBC+Driver+17+for+SQL+Server"
     JWT_SECRET_KEY = b'X19\xf8Gh]\xe1\xab\n\xc5+`\xdfe\x8d\xa6$y\xbe\xc0|\xc4-'
+    SQLALCHEMY_DATABASE_URI ='sqlite:///example.db'
     
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_ENGINE_OPTIONS = {

@@ -8,7 +8,7 @@ import sys
 import logger_config
 from configs import config_by_name
 
-from extensions import bcrypt, cors, db, jwt, ma
+from extensions import bcrypt, cors, db, jwt, ma,adminpanel
 from flask import Flask
 
 def create_app(config_name:str):
@@ -29,7 +29,7 @@ def register_blueprints(app):
     
     app.register_blueprint(healthcheck_bp,url_prefix="/api/healthcheck/")
     app.register_blueprint(healthcheck_token_bp,url_prefix="/api/token/healthcheck/")
-    app.register_blueprint(admin_panel_bp,url_prefix="/api/admin_panel/")    
+    # app.register_blueprint(admin_panel_bp,url_prefix="/api/admin_panel/")    
 
 
 def register_extensions(app):
@@ -39,3 +39,4 @@ def register_extensions(app):
     jwt.init_app(app)
     bcrypt.init_app(app)
     cors.init_app(app)
+    adminpanel.init_app(app,db)
